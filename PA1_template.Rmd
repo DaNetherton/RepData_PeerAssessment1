@@ -7,13 +7,27 @@ output:
 
 
 ## Loading and preprocessing the data
+### Load Libraries
 
-
-
+```{r}
+activity_raw <- read.csv("activity.csv")  
+```
+### See how it looks
+```{r}
+str(activity_raw)  
+```
+### And a little bit more
+```{r}
+summary(activity_raw)
+```
 ## What is mean total number of steps taken per day?
+```{r}
+daily_act_raw <- tapply(activity_raw$steps, activity_raw$date, FUN=sum)
+```
 
-
-
+```{r}
+hist(daily_act_raw, breaks = 15, freq = NULL)
+```
 ## What is the average daily activity pattern?
 
 
