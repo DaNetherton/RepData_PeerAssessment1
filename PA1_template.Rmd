@@ -8,30 +8,71 @@ output:
 
 ## Loading and preprocessing the data
 ### Load Libraries
+```{r libraries}
+library(data.table)
+library(lubridate)
+library(dplyr)
+library(stringr)
 
-```{r}
+```  
+
+```{r read the data}
 activity_raw <- read.csv("activity.csv")  
 ```
 ### See how it looks
-```{r}
-str(activity_raw)  
+```{r glance1}
+str(activity_raw)
+dt=data.table(activity_raw)
+dt
 ```
 ### And a little bit more
-```{r}
+```{r glance2}
 summary(activity_raw)
 ```
 ## What is mean total number of steps taken per day?
-```{r}
+```{r getdailysummary}
 daily_act_raw <- tapply(activity_raw$steps, activity_raw$date, FUN=sum)
 ```
 
-```{r}
-hist(daily_act_raw, breaks = 15, freq = NULL)
+```{r showfreqs}
+hist(daily_act_raw, breaks = 20, freq = NULL)
+```  
+
+### Change inline output so that numbers arent in scientific notation
+```{r changeoptions} 
+options(scipen = 1, digits = 2)
 ```
+### mean daily steps
+```{r getmean}
+mean_steps <- mean(daily_act_raw, na.rm = TRUE)
+```
+The mean number of steps each day is `r round(mean_steps,0)`.   
+
+### median daily steps
+```{r getmedian}
+med_steps <- median(daily_act_raw, na.rm = TRUE)
+```
+The median number of steps each day is `r med_steps`.   
+
 ## What is the average daily activity pattern?
-
-
-
+Add a variable that makes the hours show up correctly in the plot and make a new dataset that we can manipulate without affecting the source dataset
+```{r newdataset}
+actdata <- activity_raw
+actdata$newinterval <- ymd_hm(paste("2000-01-01", str_pad(activity_raw$interval, 4, pad = "0")))
+```
+And then take that data and create a file that groups it by interval
+```{r groupbyinterval}
+interval_grps <- group_by(actdata, newinterval, interval)
+summry <- data.frame(summarise(interval_grps, mean(steps, na.rm=TRUE)))
+```
+Change the name of the resultant step summary field to make it easier to manipulate
+```{r cleanupsummary}
+summry$meansteps <- summry$mean.steps..na.rm...TRUE.
+```
+Plot that to see what is going on
+```{r plotdailyactivity}
+plot(summry$newinterval, summry$meansteps, type="l")
+```
 ## Imputing missing values
 
 
